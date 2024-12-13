@@ -129,20 +129,6 @@ model.compile(loss="binary_crossentropy",
               metrics=["accuracy"])
 
 
-# Predictions
-y_pred = model.predict(valid_data)
-y_pred = (y_pred > 0.5).astype(int)
-
-
-from sklearn.metrics import classification_report
-
-print(classification_report(
-    valid_data.classes,
-    y_pred,
-    target_names=class_names,
-    zero_division=0
-))
-
 from tensorflow.keras.callbacks import Callback
 
 # Predictions callback
@@ -219,3 +205,25 @@ model.save("skin_cancer_model.h5")
 # Load the model for predictions
 from tensorflow.keras.models import load_model
 model = load_model("skin_cancer_model.h5")
+
+
+# Reset the validation data generator
+valid_data.reset()
+
+# Generate predictions after training
+y_pred_probs = model.predict(valid_data)
+y_pred = (y_pred_probs > 0.5).astype(int).flatten()
+
+# Get the true labels
+y_true = valid_data.classes
+
+# Generate and display the classification report
+from sklearn.metrics import classification_report
+
+print("\nClassification Report:")
+print(classification_report(
+    y_true, 
+    y_pred, 
+    target_names=class_names, 
+    zero_division=0
+))
